@@ -1,5 +1,5 @@
 import { chalk, argv, echo, fs, path } from "zx"
-import { INSTRUCTOR_DIR, STUDENT_DIR } from "../config.js"
+import { loadConfig } from "../config.js"
 
 import {
   exitWithError,
@@ -31,8 +31,9 @@ export const printUsage = () => {
 const copyActivity =
   (moduleName: string) =>
   async (activityNumber: string): Promise<void> => {
+    const config = await loadConfig()
     const baseSrc = path.join(
-      INSTRUCTOR_DIR,
+      config.instructorDir,
       "01-Class-Content",
       moduleName,
       "01-Activities"
@@ -48,7 +49,7 @@ const copyActivity =
     }
     const src = path.join(baseSrc, activityName)
     const destination = path.join(
-      STUDENT_DIR,
+      config.studentDir,
       moduleName,
       "01-Activities",
       activityName
@@ -59,16 +60,18 @@ const copyActivity =
       await fs.copy(src, destination)
       if (!includeSolved()) {
         await fs.remove(path.join(destination, "Solved"))
+        await fs.remove(path.join(destination, "Main"))
       }
     }
   }
 
 export const run = async () => {
+  const config = await loadConfig()
   const moduleNumber = await getModuleNumber()
   const activityNumbers = argv._.slice(1)
 
   const moduleName = await getFolderNameByNumber(
-    path.join(INSTRUCTOR_DIR, "01-Class-Content"),
+    path.join(config.instructorDir, "01-Class-Content"),
     moduleNumber
   )
 

@@ -1,5 +1,5 @@
 import { chalk, argv, echo, fs, path } from "zx"
-import { INSTRUCTOR_DIR, STUDENT_DIR } from "../config.js"
+import { loadConfig } from "../config.js"
 
 import {
   finishExecution,
@@ -28,19 +28,20 @@ export const printUsage = () => {
 }
 
 export const run = async () => {
+  const config = await loadConfig()
   const moduleNumber = await getModuleNumber()
   const moduleName = await getFolderNameByNumber(
-    path.join(INSTRUCTOR_DIR, "01-Class-Content"),
+    path.join(config.instructorDir, "01-Class-Content"),
     moduleNumber
   )
   echo(`Copying ${moduleName} Challenge...`)
   const src = path.join(
-    INSTRUCTOR_DIR,
+    config.instructorDir,
     "01-Class-Content",
     moduleName,
     "02-Challenge"
   )
-  const destination = path.join(STUDENT_DIR, moduleName, "02-Challenge")
+  const destination = path.join(config.studentDir, moduleName, "02-Challenge")
 
   if (!dryRun) {
     await fs.copy(src, destination)
